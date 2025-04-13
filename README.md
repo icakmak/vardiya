@@ -1,29 +1,66 @@
 # Vardiya Çizelgesi Uygulaması
 
-Bu uygulama, personel vardiya çizelgesi oluşturmak ve yönetmek için geliştirilmiş bir Next.js projesidir.
+![Vardiya Çizelgesi](https://img.shields.io/badge/Vardiya-Çizelgesi-blue)
+![Next.js](https://img.shields.io/badge/Next.js-13.0+-000000?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)
 
-## Özellikler
+Bu uygulama, personel vardiya çizelgesi oluşturmak ve yönetmek için geliştirilmiş modern bir web uygulamasıdır. Kullanıcı dostu arayüzü ile vardiya planlamasını kolaylaştırır ve zaman tasarrufu sağlar.
 
-- Excel dosyasından personel verilerini yükleme
-- Özelleştirilebilir vardiya tipleri ve süreleri
-- Otomatik vardiya çizelgesi oluşturma
-- İzin ve tatil günlerini ekleyebilme
-- Vardiya dağılımı görselleştirme
-- Excel'e aktarma
-- Mobil uyumlu tasarım
+## 📋 İçerik
 
-## Teknolojiler
+- [Özellikler](#özellikler)
+- [Ekran Görüntüleri](#ekran-görüntüleri)
+- [Teknolojiler](#teknolojiler)
+- [Kurulum](#kurulum)
+- [Kullanım](#kullanım)
+- [Geliştirme](#geliştirme)
+- [Lisans](#lisans)
+- [İletişim](#i̇letişim)
 
-- [Next.js](https://nextjs.org/) - React tabanlı web framework
-- [TypeScript](https://www.typescriptlang.org/) - Tip güvenlikli JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [XLSX.js](https://github.com/SheetJS/sheetjs) - Excel dosyaları için JavaScript kütüphanesi
-- [FileSaver.js](https://github.com/eligrey/FileSaver.js/) - Client-side dosya kaydetme için JavaScript kütüphanesi
-- [Font Awesome](https://fontawesome.com/) - İkon kütüphanesi
+## ✨ Özellikler
 
-## Başlangıç
+- **Excel Entegrasyonu**: Excel dosyasından personel verilerini kolayca içe aktarma
+- **Özelleştirilebilir Vardiyalar**: Farklı vardiya tipleri ve süreleri tanımlayabilme
+- **Akıllı Planlama**: Otomatik vardiya çizelgesi oluşturma algoritması
+- **İzin Yönetimi**: İzin ve tatil günlerini ekleyebilme ve yönetebilme
+- **Görselleştirme**: Vardiya dağılımını grafikler ile görselleştirme
+- **Dışa Aktarma**: Oluşturulan çizelgeyi Excel formatında dışa aktarma
+- **Responsive Tasarım**: Mobil cihazlardan da erişilebilir arayüz
+
+## 📱 Ekran Görüntüleri
+
+_Uygulama tamamlandığında ekran görüntüleri eklenecektir._
+
+## 🛠️ Teknolojiler
+
+- **Frontend**:
+
+  - [Next.js](https://nextjs.org/) - React tabanlı web framework
+  - [TypeScript](https://www.typescriptlang.org/) - Tip güvenlikli JavaScript
+  - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+  - [React Query](https://tanstack.com/query/latest) - Veri yönetimi için
+  - [Zustand](https://github.com/pmndrs/zustand) - State yönetimi
+
+- **Veri İşleme**:
+
+  - [XLSX.js](https://github.com/SheetJS/sheetjs) - Excel dosyaları için JavaScript kütüphanesi
+  - [FileSaver.js](https://github.com/eligrey/FileSaver.js/) - Client-side dosya kaydetme
+
+- **UI Bileşenleri**:
+  - [Shadcn UI](https://ui.shadcn.com/) - Modern UI bileşenleri
+  - [Font Awesome](https://fontawesome.com/) - İkon kütüphanesi
+  - [React Calendar](https://github.com/wojtekmaj/react-calendar) - Takvim bileşeni
+
+## 🚀 Kurulum
 
 Bu projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyin:
+
+### Ön Koşullar
+
+- Node.js (v16 veya üzeri)
+- npm veya yarn
+
+### Adımlar
 
 1. Repo'yu klonlayın:
 
