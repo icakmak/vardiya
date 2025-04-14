@@ -10,7 +10,12 @@ declare global {
   }
 }
 
-export default function UploadExcel() {
+// Props tanımı
+interface UploadExcelProps {
+  onEmployeesUploaded?: () => void;
+}
+
+export default function UploadExcel({ onEmployeesUploaded }: UploadExcelProps = {}) {
   const { setEmployees } = useSchedule();
   const [fileName, setFileName] = useState<string>('');
   const [employeeCount, setEmployeeCount] = useState<number>(0);
@@ -29,6 +34,27 @@ export default function UploadExcel() {
 
     setFileName(file.name);
 
+    // XLSX kütüphanesinin yüklendiğinden emin olmak için kontrol ekleyelim
+    if (typeof window !== 'undefined' && !window.XLSX) {
+      console.warn('XLSX kütüphanesi henüz yüklenmedi, 2 saniye bekliyor...');
+      // Kütüphane yüklenene kadar bekleyelim
+      setTimeout(() => {
+        if (!window.XLSX) {
+          alert('XLSX kütüphanesi yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin.');
+          console.error('XLSX kütüphanesi 2 saniye beklemeye rağmen yüklenemedi');
+          return;
+        }
+        // Kütüphane yüklendiğinde dosya okuma işlemini tekrar başlat
+        processExcelFile(file);
+      }, 2000);
+    } else {
+      // Kütüphane zaten yüklüyse hemen işleme başla
+      processExcelFile(file);
+    }
+  };
+
+  // Excel dosyasını işleyecek fonksiyon - kütüphane kontrolünü ayrı metoda taşıdık
+  const processExcelFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -136,6 +162,11 @@ export default function UploadExcel() {
           // Çalışanları global state'e aktar
           setEmployees(employeeList);
           console.log("Çalışanlar context'e yüklendi:", employeeList.length);
+
+          // Callback'i çağır
+          if (onEmployeesUploaded) {
+            onEmployeesUploaded();
+          }
         }, 0);
 
         // Başarı mesajı
@@ -178,6 +209,10 @@ export default function UploadExcel() {
 
       <p className="text-gray-600 mb-2 border-l-4 border-green-500 pl-2 py-1 bg-green-50 rounded text-sm">
         A sütununda TC No, B sütununda Ad Soyad bilgisi bulunan Excel dosyasını yükleyin.
+        <br />
+        <span className="mt-1 text-xs italic">
+          Not: Vardiya tiplerini ayrı bir Excel ile yüklemek için Vardiya Ayarları bölümüne gidin.
+        </span>
       </p>
 
       <div className="flex items-center w-full">

@@ -2,6 +2,7 @@
 
 import { useSchedule } from '@/app/context/ScheduleContext';
 import ShiftTypeButton from './ShiftTypeButton';
+import { getShiftColorStyle } from '@/app/utils/colors';
 
 export default function VardiyaTipleri() {
   const { shiftTypes } = useSchedule();
@@ -19,26 +20,33 @@ export default function VardiyaTipleri() {
       </div>
 
       <div className="space-y-3">
-        {workShiftTypes.map((shift) => (
-          <div
-            key={shift.code}
-            className="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-500 shadow-sm"
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white bg-${shift.color}-500 font-bold`}
-                >
-                  {shift.code}
+        {workShiftTypes.map((shift) => {
+          // 'vardiyaTipleri' görünümü için renk stilini al
+          const colorStyle = getShiftColorStyle(shift.color, 'vardiyaTipleri');
+
+          return (
+            <div
+              key={shift.code}
+              className="bg-gray-50 p-3 rounded-lg border-l-4 shadow-sm"
+              style={{ borderLeftColor: colorStyle.borderColor }}
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-sm"
+                    style={{ backgroundColor: colorStyle.color }}
+                  >
+                    {shift.code}
+                  </div>
+                  <div className="font-medium">{shift.name}</div>
                 </div>
-                <div className="font-medium">{shift.name}</div>
-              </div>
-              <div className="text-sm text-gray-500">
-                {shift.startTime} - {shift.endTime}
+                <div className="text-sm text-gray-500">
+                  {shift.startTime} - {shift.endTime}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {workShiftTypes.length === 0 && (
           <div className="p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg bg-gray-50">

@@ -10,7 +10,6 @@ export default function ScheduleStats() {
   // Personel raporu için filtre state'leri
   const [filterShiftType, setFilterShiftType] = useState<string>('all');
   const [sortOption, setSortOption] = useState<string>('totalShifts');
-  const [efficiencyThreshold, setEfficiencyThreshold] = useState<number>(50);
   const [showActiveOnly, setShowActiveOnly] = useState<boolean>(true);
 
   // Aktif çalışan sayısı
@@ -35,7 +34,42 @@ export default function ScheduleStats() {
   const totalWeekendDays = weekendCount;
 
   // Bir vardiya için ortalama saat hesabı
-  const averageShiftHours = 8; // Varsayılan değer (değiştirilebilir)
+  const averageShiftHours = useMemo(() => {
+    // Vardiya tipleri içinden geçerli vardiyaları (çalışma vardiyalarını) filtrele
+    const workShiftTypes = shiftTypes.filter(
+      (shift) =>
+        !['HT', 'YI', 'UI', 'R', 'MZ', 'RT'].includes(shift.code) &&
+        shift.startTime &&
+        shift.endTime,
+    );
+
+    if (workShiftTypes.length === 0) return 8; // Eğer vardiya yoksa varsayılan 8 saat
+
+    // Her vardiya için süreyi hesapla
+    const shiftHours = workShiftTypes.map((shift) => {
+      const startParts = shift.startTime.split(':').map(Number);
+      const endParts = shift.endTime.split(':').map(Number);
+
+      const startHour = startParts[0];
+      const startMinute = startParts[1] || 0;
+      const endHour = endParts[0];
+      const endMinute = endParts[1] || 0;
+
+      let hourDiff = endHour - startHour;
+      let minuteDiff = endMinute - startMinute;
+
+      // Eğer 24 saat geçiyorsa (örn: 20:00-08:00)
+      if (hourDiff < 0 || (hourDiff === 0 && minuteDiff < 0)) {
+        hourDiff += 24;
+      }
+
+      // Dakikaları saate çevir
+      return hourDiff + minuteDiff / 60;
+    });
+
+    // Tüm vardiya sürelerinin ortalamasını al
+    return shiftHours.reduce((total, hours) => total + hours, 0) / shiftHours.length;
+  }, [shiftTypes]);
 
   // Toplam çalışma saati = Toplam çalışma günü × Ortalama vardiya saati
   const totalWorkHours = weekdayCount * averageShiftHours;
@@ -375,11 +409,6 @@ export default function ScheduleStats() {
           return person.shifts[filterShiftType] > 0;
         }
 
-        // Yalnızca eşik değeri üzerindeki verimlilikler
-        if (person.efficiency < efficiencyThreshold) {
-          return false;
-        }
-
         return true;
       })
       .sort((a, b) => {
@@ -401,7 +430,7 @@ export default function ScheduleStats() {
             return 0;
         }
       });
-  }, [personnelStats, filterShiftType, sortOption, efficiencyThreshold]);
+  }, [personnelStats, filterShiftType, sortOption]);
 
   // Özet istatistikler
   const summaryStats = useMemo(() => {
@@ -683,7 +712,7 @@ export default function ScheduleStats() {
               {/* Filtreleme ve Sıralama Arayüzü */}
               <div className="mb-4 bg-white p-3 rounded-lg border border-gray-200">
                 <h5 className="font-medium text-gray-700 mb-2">Rapor Filtresi</h5>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Vardiya Tipine Göre</label>
                     <select
@@ -716,26 +745,11 @@ export default function ScheduleStats() {
                       <option value="name">İsim (A-Z)</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Verimlilik Eşiği (%)</label>
-                    <div className="flex items-center">
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={efficiencyThreshold}
-                        onChange={(e) => setEfficiencyThreshold(parseInt(e.target.value))}
-                        className="w-full mr-2"
-                      />
-                      <span className="text-sm font-medium w-8">{efficiencyThreshold}</span>
-                    </div>
-                  </div>
                   <div className="flex items-end">
                     <button
                       onClick={() => {
                         setFilterShiftType('all');
                         setSortOption('totalShifts');
-                        setEfficiencyThreshold(0);
                       }}
                       className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-sm transition-colors"
                     >
@@ -791,19 +805,7 @@ export default function ScheduleStats() {
                           </div>
                         </td>
                         <td className="py-2 px-3 border-b border-r text-center">
-                          <div className="flex items-center justify-center">
-                            <div className="w-24 bg-gray-200 rounded-full h-2.5 mr-2">
-                              <div
-                                className={`h-2.5 rounded-full ${
-                                  person.efficiency >= 80
-                                    ? 'bg-green-500'
-                                    : person.efficiency >= 60
-                                    ? 'bg-yellow-500'
-                                    : 'bg-red-500'
-                                }`}
-                                style={{ width: `${Math.min(100, person.efficiency)}%` }}
-                              ></div>
-                            </div>
+                          <div>
                             <span>{person.efficiency.toFixed(0)}%</span>
                           </div>
                         </td>
@@ -848,17 +850,6 @@ export default function ScheduleStats() {
                                   </span>
                                 );
                               })}
-                          </div>
-
-                          {/* Dağılım grafiği */}
-                          <div className="mt-1 flex h-4 w-full">
-                            {person.shiftDistribution.slice(1).map((value, index) => (
-                              <div
-                                key={index}
-                                className={`h-full flex-1 ${value ? 'bg-blue-500' : 'bg-gray-200'}`}
-                                title={`Gün ${index + 1}: ${value ? 'Vardiya var' : 'Vardiya yok'}`}
-                              ></div>
-                            ))}
                           </div>
                         </td>
                         <td className="py-2 px-3 border-b">

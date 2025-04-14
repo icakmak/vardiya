@@ -18,10 +18,11 @@ export default function MainContent() {
     employees,
     setSchedule,
     shiftTypes,
+    showSchedule,
+    setShowSchedule,
   } = useSchedule();
   const [lateTolerance, setLateTolerance] = useState<number>(5);
   const [earlyTolerance, setEarlyTolerance] = useState<number>(5);
-  const [showSchedule, setShowSchedule] = useState<boolean>(false);
 
   // Sayfa yüklendiğinde veya değiştiğinde arama butonuna olay dinleyicisi ekle
   useEffect(() => {

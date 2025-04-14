@@ -46,6 +46,8 @@ interface ScheduleContextType {
   setSelectedMonth: (month: number) => void;
   selectedYear: number;
   setSelectedYear: (year: number) => void;
+  showSchedule: boolean;
+  setShowSchedule: (show: boolean) => void;
 }
 
 // Dummy noop fonksiyonu
@@ -65,6 +67,8 @@ const defaultValue: ScheduleContextType = {
   setSelectedMonth: noop,
   selectedYear: new Date().getFullYear(),
   setSelectedYear: noop,
+  showSchedule: false,
+  setShowSchedule: noop,
 };
 
 // Context oluşturma
@@ -74,32 +78,11 @@ const ScheduleContext = createContext<ScheduleContextType>(defaultValue);
 export function ScheduleProvider({ children }: { children: ReactNode }) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [schedule, setSchedule] = useState<Schedule>({});
-  const [shiftTypes, setShiftTypes] = useState<ShiftType[]>([
-    {
-      code: 'A',
-      name: 'Gündüz',
-      startTime: '08:00',
-      endTime: '20:00',
-      color: 'blue',
-    },
-    {
-      code: 'B',
-      name: 'Gece',
-      startTime: '20:00',
-      endTime: '08:00',
-      color: 'indigo',
-    },
-    {
-      code: 'HT',
-      name: 'Hafta Tatili',
-      startTime: '',
-      endTime: '',
-      color: 'gray',
-    },
-  ]);
+  const [shiftTypes, setShiftTypes] = useState<ShiftType[]>([]);
   const [shiftCounts, setShiftCounts] = useState<ShiftCounts>({});
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [showSchedule, setShowSchedule] = useState<boolean>(false);
 
   // Hata ayıklama için state değişikliklerini izle
   useEffect(() => {
@@ -124,6 +107,8 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     setSelectedMonth,
     selectedYear,
     setSelectedYear,
+    showSchedule,
+    setShowSchedule,
   };
 
   return <ScheduleContext.Provider value={value}>{children}</ScheduleContext.Provider>;

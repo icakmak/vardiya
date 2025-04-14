@@ -50,6 +50,14 @@ export default function ExcelExport() {
         return;
       }
 
+      // Çizelge tablosunun bulunduğu container'ı bul
+      const tableContainer = document.querySelector('.schedule-table-container');
+      if (tableContainer) {
+        // PDF oluşturmadan önce scroll konumunu en sola getir
+        (tableContainer as HTMLElement).scrollLeft = 0;
+        console.log('Çizelge scroll konumu PDF için sıfırlandı');
+      }
+
       // PDF dönüşümü için loading göster
       const loadingDiv = document.createElement('div');
       loadingDiv.innerHTML =
@@ -249,6 +257,14 @@ export default function ExcelExport() {
       if (!employees.length || !Object.keys(schedule).length) {
         alert('Aktarılacak çizelge verileri bulunamadı!');
         return;
+      }
+
+      // Çizelge tablosunun bulunduğu container'ı bul
+      const tableContainer = document.querySelector('.schedule-table-container');
+      if (tableContainer) {
+        // Excel oluşturmadan önce scroll konumunu en sola getir
+        (tableContainer as HTMLElement).scrollLeft = 0;
+        console.log('Çizelge scroll konumu Excel için sıfırlandı');
       }
 
       // Ay ve yıl bilgisini hazırla
@@ -582,9 +598,6 @@ export default function ExcelExport() {
 
           // Dakikaları saate çevir
           hours = hourDiff + minuteDiff / 60;
-        } else {
-          // Varsayılan olarak 8 saat
-          hours = 8;
         }
 
         stats.shiftHours[shift.code] += hours;

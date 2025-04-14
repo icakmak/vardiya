@@ -1,0 +1,60 @@
+{
+  "shiftTypes": [
+    {
+      "id": "1",
+      "code": "G",
+      "name": "Gündüz",
+      "startTime": "08:00",
+      "endTime": "16:00",
+      "color": "#3357FF"
+    },
+    {
+      "id": "2",
+      "code": "A",
+      "name": "Akşam",
+      "startTime": "16:00",
+      "endTime": "24:00",
+      "color": "#FF5733"
+    },
+    {
+      "id": "3",
+      "code": "GE",
+      "name": "Gece",
+      "startTime": "00:00",
+      "endTime": "08:00",
+      "color": "#9933FF"
+    },
+    {
+      "id": "e35fba5e-e891-4b1a-a43b-0488b7b566ca",
+      "code": "A1",
+      "name": "A",
+      "startTime": "08:00",
+      "endTime": "20:00",
+      "color": "#FF33F5"
+    },
+    {
+      "id": "ab1f2edd-0156-4e6a-bfd9-f577e6a2a758",
+      "code": "B",
+      "name": "B",
+      "startTime": "20:00",
+      "endTime": "08:00",
+      "color": "#FF5733"
+    },
+    {
+      "id": "9e513f78-41e0-45e3-9a7d-b1183a91e8b0",
+      "code": "C",
+      "name": "C",
+      "startTime": "12:00",
+      "endTime": "00:00",
+      "color": "#F5FF33"
+    },
+    {
+      "id": "8ce2ccf5-415b-459a-acd3-8cd88859bf9e",
+      "code": "D",
+      "name": "D",
+      "startTime": "00:00",
+      "endTime": "12:00",
+      "color": "#FF9933"
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 import '@/app/globals.css';
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Script from 'next/script';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Vardiya Çizelgesi Uygulaması',
-  description: 'Personel vardiya çizelgesi oluşturma ve yönetme uygulaması',
+  title: 'Vardiya Planlama Uygulaması',
+  description: 'Kolay ve esnek vardiya planlama sistemi',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,10 +26,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
-        <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
       </head>
-      <body>{children}</body>
+      <body className={inter.className}>
+        {children}
+
+        {/* Excel işleme için gerekli kütüphaneler */}
+        <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }

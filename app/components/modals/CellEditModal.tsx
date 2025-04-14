@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSchedule } from '@/app/context/ScheduleContext';
+import { getShiftColorStyle } from '@/app/utils/colors';
 
 export default function CellEditModal() {
   const { shiftTypes, schedule, setSchedule } = useSchedule();
@@ -275,19 +276,25 @@ export default function CellEditModal() {
             <div id="shift-edit-section">
               <label className="block text-sm font-medium text-gray-700 mb-2">Vardiya Seçimi</label>
               <div className="grid grid-cols-3 gap-2" id="shift-buttons-container">
-                {shiftTypes.map((shift) => (
-                  <button
-                    key={shift.code}
-                    onClick={() => handleShiftSelect(shift.code)}
-                    className={`px-3 py-2 ${getColorClass(
-                      shift.color,
-                      selectedValue === shift.code,
-                    )}
-                    text-sm font-medium rounded-lg shadow-sm focus:outline-none transition-colors flex items-center justify-center`}
-                  >
-                    {shift.code}
-                  </button>
-                ))}
+                {shiftTypes.map((shift) => {
+                  const colorStyle = getShiftColorStyle(shift.color, 'shiftTypeSelector');
+                  const isSelected = selectedValue === shift.code;
+
+                  return (
+                    <button
+                      key={shift.code}
+                      onClick={() => handleShiftSelect(shift.code)}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg shadow-sm focus:outline-none transition-colors flex items-center justify-center`}
+                      style={{
+                        backgroundColor: isSelected ? colorStyle.color : colorStyle.backgroundColor,
+                        color: isSelected ? 'white' : colorStyle.color,
+                        border: `1px solid ${colorStyle.color}`,
+                      }}
+                    >
+                      {shift.code}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

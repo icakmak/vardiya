@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSchedule } from '@/app/context/ScheduleContext';
+import { hexToRgba, getShiftColorStyle, shiftColors } from '@/app/utils/colors';
 
 // Global tanımlar
 declare global {
@@ -166,39 +167,87 @@ export default function ScheduleTable() {
     return shift ? shift.color : 'gray';
   };
 
-  // Vardiya veya izin koduna göre hücre içeriği ve stilini belirle
-  const getCellContent = (cellValue: string | null) => {
-    if (!cellValue) return { content: '', className: '' };
+  // Hücre değerini formatlı şekilde döndür
+  const getFormattedCellValue = (cellValue: string) => {
+    // İzin kodları
+    if (['HT', 'YI', 'UI', 'R', 'MZ', 'RT'].includes(cellValue)) {
+      let leaveText = '';
+      let colorName = '';
 
-    // İzin kodları için
-    if (['YI', 'UI', 'R', 'MZ', 'RT'].includes(cellValue)) {
-      let className = 'bg-green-100 text-green-800 font-bold';
-      if (cellValue === 'UI') className = 'bg-red-100 text-red-800 font-bold';
+      switch (cellValue) {
+        case 'HT':
+          leaveText = 'Hafta Tatili';
+          colorName = 'yellow';
+          break;
+        case 'YI':
+          leaveText = 'Yıllık İzin';
+          colorName = 'emerald';
+          break;
+        case 'UI':
+          leaveText = 'Ücretsiz İzin';
+          colorName = 'rose';
+          break;
+        case 'R':
+          leaveText = 'Rapor';
+          colorName = 'red';
+          break;
+        case 'MZ':
+          leaveText = 'Mazeret';
+          colorName = 'indigo';
+          break;
+        case 'RT':
+          leaveText = 'Resmi Tatil';
+          colorName = 'orange';
+          break;
+        default:
+          colorName = 'gray';
+      }
+
+      // İzin kodları için stil
+      const colorStyle = getShiftColorStyle(colorName, 'vardiyaTipleri');
 
       return {
         content: cellValue,
-        className,
-      };
-    }
-
-    // Hafta tatili ise
-    if (cellValue === 'HT') {
-      return {
-        content: 'HT',
-        className: 'bg-yellow-100 text-yellow-800 font-bold',
+        className: 'hover:text-black tooltip-trigger',
+        style: {
+          backgroundColor: colorStyle.backgroundColor,
+          color: colorStyle.color,
+          cursor: 'pointer',
+        },
+        tooltip: leaveText,
       };
     }
 
     // Vardiya kodu ise
     const shift = shiftTypes.find((s) => s.code === cellValue);
     if (shift) {
+      // Çizelge hücreleri için renk stilini getir
+      const colorStyle = getShiftColorStyle(shift.color, 'scheduleCell');
+
       return {
         content: shift.code,
-        className: `bg-${shift.color}-100 text-${shift.color}-800 font-bold`,
+        className: 'font-bold tooltip-trigger hover:opacity-90',
+        style: {
+          backgroundColor: colorStyle.backgroundColor,
+          color: colorStyle.color,
+          border: `1px solid ${hexToRgba(colorStyle.color, 0.3)}`,
+          borderRadius: '0.5rem', // daha yuvarlak köşeler
+          padding: '0px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: `0 2px 4px ${hexToRgba(colorStyle.color, 0.2)}`,
+          transition: 'all 0.2s ease-in-out',
+        },
+        tooltip: shift.name,
       };
     }
 
-    return { content: cellValue, className: '' };
+    return { content: cellValue, className: '', style: {}, tooltip: '' };
   };
 
   // Çalışanın vardiya istatistiklerini hesapla
@@ -268,9 +317,6 @@ export default function ScheduleTable() {
 
           // Dakikaları saate çevir
           hours = hourDiff + minuteDiff / 60;
-        } else {
-          // Varsayılan olarak 8 saat
-          hours = 8;
         }
 
         stats.shiftHours[shift.code] += hours;
@@ -281,39 +327,162 @@ export default function ScheduleTable() {
     return stats;
   };
 
+  // Shift türüne göre arka plan rengi belirleme
+  const getBackgroundColor = (code: string) => {
+    // Vardiya kodu yoksa boş döndür
+    if (!code) return '';
+
+    // Vardiya tipini bul
+    const shiftType = shiftTypes.find((s) => s.code === code);
+
+    // Vardiya tipi bulunamadıysa boş döndür
+    if (!shiftType) return '';
+
+    // Hex kodu kontrolü
+    if (shiftType.color && shiftType.color.startsWith('#')) {
+      // Hex rengi RGBA'ya dönüştürerek %15 opaklıkta döndür
+      return hexToRgba(shiftType.color, 0.15);
+    }
+
+    // Tailwind renk sınıfı için
+    return `bg-${shiftType.color}-100`;
+  };
+
+  // Shift türüne göre metin rengi belirleme
+  const getTextColor = (code: string) => {
+    // Vardiya kodu yoksa boş döndür
+    if (!code) return '';
+
+    // Vardiya tipini bul
+    const shiftType = shiftTypes.find((s) => s.code === code);
+
+    // Vardiya tipi bulunamadıysa boş döndür
+    if (!shiftType) return '';
+
+    // Hex kodu kontrolü
+    if (shiftType.color && shiftType.color.startsWith('#')) {
+      return shiftType.color; // Doğrudan hex rengini döndür
+    }
+
+    // Tailwind renk sınıfı için
+    return `text-${shiftType.color}-700`;
+  };
+
+  // Shift türüne göre kenarlık rengi belirleme
+  const getBorderColor = (code: string) => {
+    // Vardiya kodu yoksa boş döndür
+    if (!code) return '';
+
+    // Vardiya tipini bul
+    const shiftType = shiftTypes.find((s) => s.code === code);
+
+    // Vardiya tipi bulunamadıysa boş döndür
+    if (!shiftType) return '';
+
+    // Hex kodu kontrolü
+    if (shiftType.color && shiftType.color.startsWith('#')) {
+      return shiftType.color; // Doğrudan hex rengini döndür
+    }
+
+    // Tailwind renk sınıfı için
+    return `border-${shiftType.color}-300`;
+  };
+
+  // Modal açma fonksiyonu
+  const openShiftModal = ({
+    employeeId,
+    day,
+    month,
+    year,
+  }: {
+    employeeId: number | string;
+    day: number;
+    month: number;
+    year: number;
+  }) => {
+    // Çalışan bilgilerini bul
+    const employee = employees.find((emp) => emp.id === employeeId);
+    if (!employee) {
+      console.error('Çalışan bulunamadı:', employeeId);
+      return;
+    }
+
+    // Tarih bilgisini hazırla
+    const date = new Date(year, month - 1, day);
+    const formattedDate = date.toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    });
+
+    // Global showCellEditModal fonksiyonunu çağır
+    if (window.showCellEditModal) {
+      window.showCellEditModal(String(employeeId), employee.adSoyad, day, formattedDate);
+    } else {
+      console.error('showCellEditModal fonksiyonu bulunamadı.');
+
+      // Modal manuel olarak açılmaya çalışılıyor
+      const modal = document.getElementById('cell-edit-modal');
+      if (modal) {
+        console.log('Modal manuel olarak açılıyor');
+        modal.classList.remove('hidden');
+
+        // Modal içindeki bazı bilgileri manuel güncelle
+        const titleElement = document.getElementById('cell-edit-title');
+        if (titleElement) {
+          titleElement.textContent = `${employee.adSoyad} - ${formattedDate}`;
+        }
+      } else {
+        alert('Vardiya düzenleme modalı yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin.');
+      }
+    }
+  };
+
+  // handleCellClick fonksiyonunu göncelleyelim (var olan fonksiyonu kullanacağız veya oluşturacağız)
+  const handleCellClick = (employeeId: number | string, day: number) => {
+    openShiftModal({
+      employeeId,
+      day,
+      month: selectedMonth,
+      year: selectedYear,
+    });
+  };
+
   return (
-    <div className="overflow-x-auto schedule-table-container">
-      <table
-        className="min-w-full text-sm bg-white border border-gray-200 rounded shadow-sm"
-        id="schedule-table"
-      >
-        <thead>
-          <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
-            <th className="py-2 px-3 border-b border-r text-left text-xs font-medium text-gray-600 uppercase tracking-wider sticky left-0 bg-white">
-              Sicil No
+    <div className="w-full overflow-auto shadow-lg rounded-lg bg-white schedule-table-container">
+      <table id="schedule-table" className="min-w-full divide-y divide-gray-200 border-collapse">
+        <thead className="bg-gradient-to-r from-blue-50 to-gray-50">
+          <tr>
+            {/* İlk sütun - Çalışan adı için */}
+            <th
+              className="sticky left-0 z-10 py-3 px-4 border-b border-r text-left text-xs font-medium text-gray-700 uppercase tracking-wider bg-gradient-to-r from-blue-100 to-blue-50"
+              style={{ minWidth: '180px' }}
+            >
+              Çalışan
             </th>
-            <th className="py-2 px-3 border-b border-r text-left text-xs font-medium text-gray-600 uppercase tracking-wider sticky left-[81px] bg-white">
-              Ad Soyad
-            </th>
+
             {daysInMonth.map((day) => (
               <th
                 key={day}
-                className={`py-2 px-3 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${
-                  ['Cmt', 'Paz'].includes(weekDays[day - 1]) ? 'bg-yellow-50' : ''
+                className={`py-2 px-3 border-b border-r text-center text-xs font-medium text-gray-700 uppercase tracking-wider ${
+                  ['Cmt', 'Paz'].includes(weekDays[day - 1])
+                    ? 'bg-gradient-to-b from-yellow-50 to-yellow-100'
+                    : 'bg-gradient-to-b from-gray-50 to-gray-100'
                 }`}
               >
-                <div>{day}</div>
+                <div className="font-semibold">{day}</div>
                 <div className="text-[10px] text-gray-500">{weekDays[day - 1]}</div>
               </th>
             ))}
 
             {/* İstatistik bilgileri için başlıklar */}
-            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-50">
-              <div>Çalışma</div>
+            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-700 uppercase tracking-wider bg-gradient-to-b from-blue-50 to-blue-100">
+              <div className="font-semibold">Çalışma</div>
               <div className="text-[10px] text-gray-500">Gün</div>
             </th>
-            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-50">
-              <div>Toplam</div>
+            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-700 uppercase tracking-wider bg-gradient-to-b from-blue-50 to-blue-100">
+              <div className="font-semibold">Toplam</div>
               <div className="text-[10px] text-gray-500">Saat</div>
             </th>
 
@@ -324,21 +493,32 @@ export default function ScheduleTable() {
                   shift.code !== 'HT' && !['YI', 'UI', 'R', 'MZ', 'RT'].includes(shift.code),
               )
               .sort((a, b) => a.code.localeCompare(b.code))
-              .map((shift) => (
-                <th
-                  key={shift.code}
-                  className={`py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-${
-                    shift.color || 'gray'
-                  }-50`}
-                >
-                  <div>{shift.code}</div>
-                  <div className="text-[10px] text-gray-500">Gün/Saat</div>
-                </th>
-              ))}
+              .map((shift) => {
+                // Tablodaki başlıklar için renk stilini getir
+                const colorStyle = getShiftColorStyle(shift.color, 'tableSummary');
+
+                return (
+                  <th
+                    key={shift.code}
+                    className="py-2 px-2 text-center text-xs font-medium text-gray-700 uppercase"
+                    // style={{
+                    //   background: `linear-gradient(to bottom, ${hexToRgba(
+                    //     colorStyle.color,
+                    //     0.05,
+                    //   )}, ${hexToRgba(colorStyle.color, 0.15)})`,
+                    // }}
+                  >
+                    <div className="font-semibold" style={{ color: colorStyle.color }}>
+                      {shift.code}
+                    </div>
+                    <div className="text-[10px] text-gray-500">Gün/Saat</div>
+                  </th>
+                );
+              })}
 
             {/* Hafta tatili başlığı */}
-            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-yellow-50">
-              <div>HT</div>
+            <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-700 uppercase tracking-wider bg-gradient-to-b from-yellow-50 to-yellow-100">
+              <div className="font-semibold">HT</div>
               <div className="text-[10px] text-gray-500">Gün</div>
             </th>
 
@@ -346,15 +526,15 @@ export default function ScheduleTable() {
             {['YI', 'UI', 'R', 'MZ', 'RT'].some((code) =>
               employees.some((emp) => schedule[emp.id]?.some((shift) => shift === code)),
             ) && (
-              <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-green-50">
-                <div>İzin/Rapor</div>
+              <th className="py-2 px-2 border-b border-r text-center text-xs font-medium text-gray-700 uppercase tracking-wider bg-gradient-to-b from-green-50 to-green-100">
+                <div className="font-semibold">İzin/Rapor</div>
                 <div className="text-[10px] text-gray-500">Gün</div>
               </th>
             )}
           </tr>
         </thead>
         <tbody>
-          {employees.map((employee) => {
+          {employees.map((employee, index) => {
             // Çalışanın vardiya istatistiklerini hesapla
             const stats = calculateEmployeeStats(employee.id);
 
@@ -364,65 +544,84 @@ export default function ScheduleTable() {
               .reduce((sum, [_, count]) => sum + count, 0);
 
             return (
-              <tr key={employee.id} className="hover:bg-gray-50">
-                <td className="py-2 px-3 border-b border-r text-xs sticky left-0 bg-white">
-                  {employee.tcNo}
-                </td>
-                <td className="py-2 px-3 border-b border-r text-xs font-medium sticky left-[81px] bg-white">
-                  {employee.adSoyad}
+              <tr
+                key={employee.id}
+                className={`hover:bg-gray-50 transition-colors ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                }`}
+              >
+                {/* Çalışan bilgisi - sabit sol sütun */}
+                <td
+                  className="sticky left-0 z-10 py-2 px-4 border-b border-r whitespace-nowrap bg-white shadow-sm"
+                  style={{
+                    minWidth: '180px',
+                    background: index % 2 === 0 ? 'white' : 'rgba(249, 250, 251, 0.9)',
+                  }}
+                >
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-8 w-8">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-bold">
+                        {employee.adSoyad.charAt(0)}
+                      </div>
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">{employee.adSoyad}</div>
+                      <div className="text-xs text-gray-500">{employee.tcNo}</div>
+                    </div>
+                  </div>
                 </td>
                 {daysInMonth.map((day) => {
                   const cellValue = schedule[employee.id]?.[day] || null;
-                  const { content, className } = getCellContent(cellValue);
+                  const { content, className, style, tooltip } = getFormattedCellValue(
+                    cellValue || '',
+                  );
 
                   return (
                     <td
                       key={`${employee.id}-${day}`}
-                      className={`py-2 px-1 border-b border-r text-center text-xs cursor-pointer hover:bg-gray-100 transition-colors ${
-                        ['Cmt', 'Paz'].includes(weekDays[day - 1]) ? 'bg-yellow-50' : ''
+                      className={`relative border text-center transition-all duration-150 ${
+                        cellValue === 'HT' ? 'bg-red-50' : ''
                       }`}
-                      data-employee-id={employee.id}
-                      data-day={day}
-                      title={`${employee.adSoyad} - ${day} ${
-                        [
-                          'Ocak',
-                          'Şubat',
-                          'Mart',
-                          'Nisan',
-                          'Mayıs',
-                          'Haziran',
-                          'Temmuz',
-                          'Ağustos',
-                          'Eylül',
-                          'Ekim',
-                          'Kasım',
-                          'Aralık',
-                        ][selectedMonth - 1]
-                      } ${selectedYear} - ${weekDays[day - 1]}`}
+                      onClick={() => handleCellClick(employee.id, day)}
+                      style={{
+                        minWidth: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                      }}
                     >
-                      {content ? (
-                        <div
-                          className={`w-8 h-8 mx-auto flex items-center justify-center ${className} rounded-md shadow-sm hover:shadow transition-all`}
-                        >
-                          {content}
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 mx-auto flex items-center justify-center rounded-md border border-dashed border-gray-300 text-gray-400 hover:border-gray-500 hover:text-gray-600 transition-all">
-                          +
-                        </div>
-                      )}
+                      <div className="absolute inset-0 flex items-center justify-center hover:bg-opacity-20 hover:bg-blue-100 transition-all duration-200">
+                        {/* Vardiya değeri varsa göster */}
+                        {cellValue && (
+                          <div
+                            className={`rounded-md w-9 h-9 flex items-center justify-center transition-transform hover:scale-105 ${
+                              cellValue === 'HT' ? 'bg-yellow-100' : ''
+                            }`}
+                            style={{
+                              backgroundColor: style?.backgroundColor || '',
+                              color: style?.color || '',
+                              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+                              fontWeight: 500,
+                              borderRadius: '0.5rem',
+                            }}
+                          >
+                            {content}
+                          </div>
+                        )}
+                      </div>
                     </td>
                   );
                 })}
 
                 {/* Toplam çalışma günü */}
-                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-blue-50">
-                  <div className="text-blue-700 font-bold">{stats.totalWorkDays}</div>
+                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-gradient-to-b from-blue-50 to-blue-100">
+                  <div className="text-blue-700 font-bold text-sm ">{stats.totalWorkDays}</div>
                 </td>
 
                 {/* Toplam çalışma saati */}
-                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-blue-50">
-                  <div className="text-blue-700 font-bold">{stats.totalWorkHours.toFixed(1)}</div>
+                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-gradient-to-b from-blue-50 to-blue-100">
+                  <div className="text-blue-700 font-bold text-sm ">
+                    {stats.totalWorkHours.toFixed(1)}
+                  </div>
                 </td>
 
                 {/* Her vardiya tipi için sayı/saat bilgisi */}
@@ -436,14 +635,21 @@ export default function ScheduleTable() {
                     const count = stats.shiftCounts[shift.code] || 0;
                     const hours = stats.shiftHours[shift.code] || 0;
 
+                    // Tablo özeti için renk stilini getir
+                    const colorStyle = getShiftColorStyle(shift.color, 'tableSummary');
+
                     return (
                       <td
                         key={`${employee.id}-${shift.code}`}
-                        className={`py-2 px-2 border-b border-r text-center text-xs font-medium bg-${
-                          shift.color || 'gray'
-                        }-50`}
+                        className="py-2 px-2 border-b border-r text-center text-xs font-medium"
+                        style={{
+                          background: `linear-gradient(to bottom, ${hexToRgba(
+                            colorStyle.color,
+                            0.05,
+                          )}, ${hexToRgba(colorStyle.color, 0.15)})`,
+                        }}
                       >
-                        <div className={`text-${shift.color || 'gray'}-700 font-bold`}>
+                        <div className="" style={{ color: colorStyle.color, fontWeight: 'bold' }}>
                           {count}
                           {count > 0 && (
                             <span className="text-[10px] text-gray-500 ml-1">
@@ -456,22 +662,27 @@ export default function ScheduleTable() {
                   })}
 
                 {/* Hafta tatili günleri */}
-                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-yellow-50">
-                  <div className="text-yellow-700 font-bold">{stats.shiftCounts['HT'] || 0}</div>
+                <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-gradient-to-b from-yellow-50 to-yellow-100">
+                  <div className="text-yellow-700 font-bold text-sm ">
+                    {stats.shiftCounts['HT'] || 0}
+                  </div>
                 </td>
 
                 {/* İzin günleri */}
                 {['YI', 'UI', 'R', 'MZ', 'RT'].some((code) =>
                   employees.some((emp) => schedule[emp.id]?.some((shift) => shift === code)),
                 ) && (
-                  <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-green-50">
-                    <div className="text-green-700 font-bold">{leaveStats}</div>
-                    <div className="text-[10px] space-x-1">
+                  <td className="py-2 px-2 border-b border-r text-center text-xs font-medium bg-gradient-to-b from-green-50 to-green-100">
+                    <div className="text-green-700 font-bold text-sm ">{leaveStats}</div>
+                    <div className="text-[9px] space-x-1 mt-1">
                       {Object.entries(stats.shiftCounts)
                         .filter(([code]) => ['YI', 'UI', 'R', 'MZ', 'RT'].includes(code))
                         .filter(([_, count]) => count > 0)
                         .map(([code, count]) => (
-                          <span key={`${employee.id}-${code}`} className="whitespace-nowrap">
+                          <span
+                            key={`${employee.id}-${code}`}
+                            className="inline-block px-1 py-0.5 bg-white rounded-md shadow-sm text-green-700 mr-1 mb-1"
+                          >
                             {code}:{count}
                           </span>
                         ))}
