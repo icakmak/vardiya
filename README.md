@@ -49,16 +49,23 @@ Vardiya Çizelgesi Uygulaması, personel yönetiminde karşılaşılan vardiya p
 
 ### Temel Özellikler
 
+- **Adım Adım İlerleme (Wizard)**: Kullanıcıyı aşama aşama yönlendiren gelişmiş bir arayüz
 - **Excel Entegrasyonu**: Excel dosyasından personel verilerini kolayca içe aktarma
 - **Özelleştirilebilir Vardiyalar**: Farklı vardiya tipleri ve süreleri tanımlayabilme
 - **Akıllı Planlama**: Otomatik vardiya çizelgesi oluşturma algoritması
 - **İzin Yönetimi**: İzin ve tatil günlerini ekleyebilme ve yönetebilme
 - **Görselleştirme**: Vardiya dağılımını grafikler ile görselleştirme
-- **Dışa Aktarma**: Oluşturulan çizelgeyi Excel formatında dışa aktarma
+- **Dışa Aktarma**: Oluşturulan çizelgeyi Excel ve PDF formatlarında dışa aktarma
 - **Responsive Tasarım**: Mobil cihazlardan da erişilebilir arayüz
 
 ### Gelişmiş Özellikler
 
+- **Wizard Arayüzü**: Kullanımı kolaylaştıran adım adım ilerleme sistemi:
+  - 1. Adım: Çalışan Excel dosyasını yükleme
+  - 2. Adım: Vardiya tiplerini belirleme/yükleme
+  - 3. Adım: Vardiya çizelgesi oluşturma
+- **Otomatik Adım Geçişi**: Veri yüklendiğinde otomatik olarak bir sonraki adıma geçme
+- **PDF ve Excel Dışa Aktarma**: Çizelgeyi farklı formatlarda kaydedebilme
 - **Personel Tercihleri**: Çalışanların tercih ettikleri vardiya saatlerini belirtebilme
 - **Çakışma Kontrolü**: Vardiya çakışmalarını otomatik tespit etme ve çözme
 - **Yasal Uyumluluk**: Maksimum çalışma saatleri ve minimum dinlenme sürelerini dikkate alma
@@ -120,6 +127,8 @@ Uygulamanın canlı demosuna [buradan](https://vardiya-demo.vercel.app) erişebi
 - **[FileSaver.js](https://github.com/eligrey/FileSaver.js/)** - Client-side dosya kaydetme
 - **[date-fns](https://date-fns.org/)** - Tarih işlemleri için JavaScript kütüphanesi
 - **[Chart.js](https://www.chartjs.org/)** - Grafikler için JavaScript kütüphanesi
+- **[html2canvas](https://html2canvas.hertzen.com/)** - HTML'i canvas'a dönüştürme (PDF export için)
+- **[jsPDF](https://github.com/parallax/jsPDF)** - Client-side PDF oluşturma
 
 ### UI Bileşenleri
 
@@ -144,3 +153,83 @@ Uygulamanın canlı demosuna [buradan](https://vardiya-demo.vercel.app) erişebi
 - **[Cypress](https://www.cypress.io/)** - E2E testleri
 
 ## 🏗 Sistem Mimarisi
+
+## 📘 Kullanım
+
+Vardiya Çizelgesi Uygulaması, kullanıcı dostu adım adım (wizard) arayüzü sayesinde kolayca kullanılabilir:
+
+### 1. Çalışan Listesini Yükleme
+
+1. Sidebar'daki "Çalışan Listesi" adımını seçin
+2. "Excel'i tıkla/sürükle" alanına A sütununda TC No, B sütununda Ad Soyad bilgisi içeren Excel dosyasını sürükleyin veya tıklayarak seçin
+3. Dosya başarıyla yüklendiğinde, otomatik olarak bir sonraki adıma geçilecektir
+4. Manuel olarak "Sonraki Adım" butonuna tıklayarak da ilerleyebilirsiniz
+
+### 2. Vardiya Tiplerini Tanımlama
+
+1. "Vardiya Tipleri" adımında, vardiya türlerini tanımlayabilirsiniz
+2. Mevcut vardiya tiplerini düzenleyebilir veya "Yeni Ekle" butonuyla yeni vardiyalar ekleyebilirsiniz
+3. Excel dosyasından vardiya tiplerini içe aktarmak için "Excel'i tıkla/sürükle" alanını kullanabilirsiniz
+4. Vardiya tipleri hazır olduğunda, "Sonraki Adım" butonuna tıklayarak ilerleyin
+
+### 3. Vardiya Çizelgesi Oluşturma
+
+1. "Çizelge Oluşturma" adımında, tüm veriler hazır olduğunda "Vardiya Çizelgesi Oluştur" butonuna tıklayın
+2. Sistem otomatik olarak çalışanlar için adil bir vardiya dağılımı oluşturacaktır
+3. Oluşturulan çizelge ekranda görüntülenecektir
+4. Çizelgeyi düzenlemek için, herhangi bir hücreye tıklayarak vardiya tipini değiştirebilirsiniz
+5. "İzin Ekleme" bölümünden çalışanlara izin tanımlayabilirsiniz
+
+### Çizelgeyi Dışa Aktarma
+
+1. Oluşturulan çizelgenin üst kısmında bulunan "Excel'e Aktar" veya "PDF'e Aktar" butonlarını kullanabilirsiniz
+2. Excel formatında detaylı veriler ve hesaplamalar ile birlikte çizelgeyi kaydedebilirsiniz
+3. PDF formatında yazdırmaya hazır bir çizelge elde edebilirsiniz
+
+### İpuçları
+
+- Wizard adımlarını takip etmek en verimli kullanım şeklidir
+- Her adımın tamamlanması, bir sonraki adımın etkinleştirilmesini sağlar
+- Yeşil tik işareti, adımın başarıyla tamamlandığını gösterir
+- Herhangi bir zamanda önceki adımlara dönüp değişiklik yapabilirsiniz
+- Vardiya çizelgesi oluşturulduktan sonra manuel olarak düzenlemeler yapabilirsiniz
+- Ayın herhangi bir gününde çalışan ve vardiya tipini değiştirmek için ilgili hücreye tıklayın
+
+## 🔄 Son Güncellemeler
+
+### v0.2.0 (Ekim 2023)
+
+- 📱 Adım adım ilerleme (Wizard) arayüzü eklendi
+- 📊 Çizelge oluşturma işlemi iyileştirildi
+- 🖨️ PDF ve Excel'e aktarma sorunları giderildi
+- 🎨 Vardiya butonları için renk desteği eklendi
+- 🔍 Çizelge görünürlük kontrolü iyileştirildi
+
+### v0.1.0 (Eylül 2023)
+
+- 🚀 İlk sürüm yayınlandı
+- 📋 Temel vardiya planlama özellikleri
+- 📤 Excel entegrasyonu
+- 📅 Otomatik çizelge oluşturma
+
+## 🔄 API Referansı
+
+## 🔄 Veri Modeli
+
+## 🔄 Geliştirme
+
+## 🔄 Test
+
+## 🔄 Dağıtım
+
+## 🔄 Yol Haritası
+
+## 🔄 Katkıda Bulunma
+
+## 🔄 Sık Sorulan Sorular
+
+## 🔄 Lisans
+
+## 🔄 İletişim
+
+## 🔄 Teşekkürler
